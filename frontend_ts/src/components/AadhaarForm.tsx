@@ -75,16 +75,13 @@ export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
 		try {
 			// Start timer and API call simultaneously
 			const [responseRaw] = await Promise.all([
-				fetch(
-					"https://openbizregistration-production.up.railway.app/api/aadhaarAPI",
-					{
-						method: "POST",
-						body: JSON.stringify({
-							aadhaar: aadhaarNumber,
-							name: name,
-						}),
-					}
-				),
+				fetch("openbiz-registration.up.railway.app/api/aadhaarAPI", {
+					method: "POST",
+					body: JSON.stringify({
+						aadhaar: aadhaarNumber,
+						name: name,
+					}),
+				}),
 				// Minimum 1 second delay
 				new Promise((resolve) => setTimeout(resolve, 1000)),
 			]);
