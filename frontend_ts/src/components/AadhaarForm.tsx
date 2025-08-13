@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import { DotSpinner } from "ldrs/react";
 import "ldrs/react/DotSpinner.css";
 import OtpSection from "./OtpSection";
@@ -8,6 +9,7 @@ interface AadhaarFormProps {
 }
 
 export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
+	const router = useRouter();
 	const [aadhaarNumber, setAadhaarNumber] = useState("");
 	const [name, setName] = useState("");
 	const [loading, setLoading] = useState(false);
@@ -16,29 +18,65 @@ export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
 	const [response, setResponse] = useState<AadhaarApiResponse | null>(null);
 	const [error, setError] = useState("");
 
+	// Field-specific error states (similar to PanForm)
+	const [showAadhaarError, setShowAadhaarError] = useState(false);
+	const [showNameError, setShowNameError] = useState(false);
+	const [showConsentError, setShowConsentError] = useState(false);
+
+	// Disable fields after OTP is successfully verified
+	const [isOtpValidated, setIsOtpValidated] = useState(false);
+
+	// Ensure initial view on (re)navigation: hide OTP section and re-enable fields
+	useEffect(() => {
+		setIsOtpValidated(false);
+		setResponse(null);
+		setError("");
+		// keep user inputs; only reset OTP view/state
+	}, [router.asPath]);
+
+	// Local handler to capture OTP verification and notify parent
+	const handleOtpVerifiedLocal = () => {
+		setIsOtpValidated(true);
+		onOtpVerified();
+	};
+
 	const handleValidateAadhaar = async () => {
+		// Reset all errors first
+		setShowAadhaarError(false);
+		setShowNameError(false);
+		setShowConsentError(false);
+
+		setError("");
+
+		let hasErrors = false;
+
+		// Check each field and set errors
 		if (!aadhaarNumber.trim()) {
-			setError("Please enter Aadhaar number");
-			return;
+			setShowAadhaarError(true);
+			hasErrors = true;
+		}
+		if (!name.trim()) {
+			setShowNameError(true);
+			hasErrors = true;
+		}
+		if (!consentChecked) {
+			setShowConsentError(true);
+			hasErrors = true;
 		}
 
-		if (!name.trim()) {
-			setError("Please enter your name");
+		// If there are validation errors, don't proceed with API call
+		if (hasErrors) {
 			return;
 		}
 
 		setLoading(true);
-		setError("");
 		setResponse(null);
 
 		try {
 			// Start timer and API call simultaneously
-			const [apiResponse] = await Promise.all([
-				fetch("http://localhost:3001/api/aadhaarAPI", {
+			const [responseRaw] = await Promise.all([
+				fetch("https://open-biz-registration.vercel.app/api/aadhaarAPI", {
 					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
 					body: JSON.stringify({
 						aadhaar: aadhaarNumber,
 						name: name,
@@ -48,16 +86,25 @@ export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
 				new Promise((resolve) => setTimeout(resolve, 1000)),
 			]);
 
-			const data = await apiResponse.json();
-
-			if (apiResponse.ok) {
-				setResponse(data);
-			} else {
-				setError(data.error || "Failed to validate Aadhaar");
-			}
+			const data: AadhaarApiResponse = await responseRaw.json();
+			setResponse(data);
 		} catch (err) {
-			setError("Network error. Please try again.");
 			console.error("API call error:", err);
+
+			// More specific error handling
+			if (err instanceof TypeError && err.message.includes("Failed to fetch")) {
+				setError(
+					"Unable to connect to server. Please check your internet connection and try again."
+				);
+			} else if (err instanceof Error) {
+				setError(
+					err.message.includes("HTTP")
+						? `Server error: ${err.message}`
+						: err.message
+				);
+			} else {
+				setError("Network error. Please try again.");
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -77,27 +124,45 @@ export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
 					<div className="grid md:grid-cols-2 gap-4 mb-4 text-sm">
 						<div className="flex flex-col">
 							<label className="font-bold ">
-								1. Aadhaar Number/ आधार संख्या
+								1. Aadhaar Number/ आधार संख्या *
 							</label>
 							<input
 								type="text"
 								placeholder="Your Aadhaar No"
-								className="border rounded p-2 mt-1"
+								className={`border rounded p-2 mt-1 ${
+									isOtpValidated ? "bg-gray-100 cursor-not-allowed" : ""
+								}`}
 								value={aadhaarNumber}
-								onChange={(e) => setAadhaarNumber(e.target.value)}
+								onChange={(e) => {
+									setAadhaarNumber(e.target.value);
+									setShowAadhaarError(false); // Clear error when user types
+								}}
+								disabled={isOtpValidated}
 							/>
+							{showAadhaarError && (
+								<p className="text-red-500 text-xs mt-1">Required</p>
+							)}
 						</div>
 						<div className="flex flex-col">
 							<label className="font-bold">
-								2. Name of Entrepreneur / उद्यमी का नाम
+								2. Name of Entrepreneur / उद्यमी का नाम *
 							</label>
 							<input
 								type="text"
 								placeholder="Name as per Aadhaar"
-								className="border rounded p-2 mt-1"
+								className={`border rounded p-2 mt-1 ${
+									isOtpValidated ? "bg-gray-100 cursor-not-allowed" : ""
+								}`}
 								value={name}
-								onChange={(e) => setName(e.target.value)}
+								onChange={(e) => {
+									setName(e.target.value);
+									setShowNameError(false); // Clear error when user types
+								}}
+								disabled={isOtpValidated}
 							/>
+							{showNameError && (
+								<p className="text-red-500 text-xs mt-1">Required</p>
+							)}
 						</div>
 					</div>
 
@@ -123,7 +188,11 @@ export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
 							type="checkbox"
 							aria-label="Consent for Aadhaar usage"
 							checked={consentChecked}
-							onChange={(e) => setConsentChecked(e.target.checked)}
+							onChange={(e) => {
+								setConsentChecked(e.target.checked);
+								setShowConsentError(false); // Clear error when user checks
+							}}
+							disabled={isOtpValidated}
 						/>
 						<p className="text-sm">
 							I, the holder of the above Aadhaar, hereby give my consent to
@@ -137,28 +206,27 @@ export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
 							आधार डेटा संग्रहीत / साझा नहीं किया जाएगा।
 						</p>
 					</div>
+					{showConsentError && (
+						<p className="text-red-500 text-xs mb-4">
+							Please provide consent to proceed with Aadhaar verification
+						</p>
+					)}
 					{!response && (
 						<button
 							className="bg-[#007bff] text-white px-4 py-2 rounded hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed"
 							onClick={handleValidateAadhaar}
-							disabled={
-								loading ||
-								!aadhaarNumber.trim() ||
-								!name.trim() ||
-								!consentChecked
-							}
+							disabled={loading}
 						>
 							{loading ? (
 								<DotSpinner size="20" speed="0.9" color="white" />
 							) : (
-								// Default values shown
 								"Validate the OTP"
 							)}
 						</button>
 					)}
 				</div>
 				{/* API Response Display */}
-				{response && <OtpSection onOtpVerified={onOtpVerified} />}
+				{response && <OtpSection onOtpVerified={handleOtpVerifiedLocal} />}
 				{/* Error Display */}
 				{error && (
 					<div className="mb-4 p-4 bg-red-700 border border-red-200 rounded">

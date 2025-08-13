@@ -1,10 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
 	output: "standalone",
-	// Enable if you need to allow connections from other hosts
-	experimental: {
-		serverComponentsExternalPackages: [],
-	},
+	// Server external packages (moved from experimental.serverComponentsExternalPackages)
+	serverExternalPackages: [],
 };
 
 module.exports = nextConfig;
