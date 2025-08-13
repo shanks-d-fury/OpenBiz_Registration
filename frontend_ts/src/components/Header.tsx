@@ -9,15 +9,14 @@ export default function Header() {
 
 	return (
 		<header className="bg-[#4537c4] text-white py-2">
-			<div className="container mx-auto flex items-center gap-4 px-4">
+			<div className="container mx-auto flex items-center gap-2 px-4">
 				<img
 					src="/MINISTRY_NAME.webp"
 					alt="Ministry of Micro, Small & Medium Enterprises"
-					className="h-14"
+					className="h-14 header-image"
 				/>
-
 				{/* Desktop Navigation */}
-				<nav className="hidden md:flex gap-6 text-sm font-medium ml-auto">
+				<nav className="hidden md:flex gap-2 text-sm font-medium ml-auto">
 					<a href="#" className="hover:underline">
 						Home
 					</a>
