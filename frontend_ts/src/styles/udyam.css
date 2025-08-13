@@ -144,3 +144,7 @@ button {
 	border: none;
 	cursor: pointer;
 }
+
+.ul-list > li {
+	margin-bottom: 2px;
+}

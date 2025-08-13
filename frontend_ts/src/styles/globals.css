@@ -1,1 +1,16 @@
 @import "tailwindcss";
+
+/* Infinite scroll from right to left animation */
+@keyframes scroll-right-to-left {
+	0% {
+		transform: translateX(100%);
+	}
+	100% {
+		transform: translateX(-100%);
+	}
+}
+
+.animate-slide-in-right {
+	animation: scroll-right-to-left 40s linear infinite;
+	white-space: nowrap;
+}

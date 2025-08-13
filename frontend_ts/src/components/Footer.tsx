@@ -7,18 +7,22 @@ export default function Footer() {
 					<p>Ministry of MSME</p>
 					<p>Udyog bhawan - New Delhi</p>
 					<p>
-						Email:{" "}
+						<b>Email: </b>
 						<a href="mailto:champions@gov.in" className="underline">
 							champions@gov.in
 						</a>
 					</p>
-					<p>Contact Us</p>
-					<p>For Grievances / Problems</p>
+					<p>
+						<b>Contact Us</b>
+					</p>
+					<p>
+						<b>For Grievances / Problems</b>
+					</p>
 				</div>
 
 				<div>
 					<h2 className="font-semibold">Our Services</h2>
-					<ul>
+					<ul className="ul-list">
 						<li>CHAMPIONS</li>
 						<li>MSME Samadhaan</li>
 						<li>MSME Sambandh</li>
@@ -28,11 +32,13 @@ export default function Footer() {
 				</div>
 			</div>
 
-			<div className="bg-[#091835] text-center py-2 text-xs">
-				© Copyright Udyam Registration. All Rights Reserved, Website Content
-				Managed by Ministry of Micro Small and Medium Enterprises, GoI Website
-				hosted & managed by National Informatics Centre, Ministry of
-				Communications and IT, Government of India
+			<div className="bg-[#091835] text-xs">
+				<div className="text-start px-8 py-4 w-2/3">
+					© Copyright Udyam Registration. All Rights Reserved, Website Content
+					Managed by Ministry of Micro Small and Medium Enterprises, GoI Website
+					hosted & managed by National Informatics Centre, Ministry of
+					Communications and IT, Government of India
+				</div>
 			</div>
 		</footer>
 	);
