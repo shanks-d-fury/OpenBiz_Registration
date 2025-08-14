@@ -23,11 +23,11 @@ export default function Footer() {
 				<div>
 					<h2 className="font-semibold">Our Services</h2>
 					<ul className="ul-list">
-						<li>CHAMPIONS</li>
-						<li>MSME Samadhaan</li>
-						<li>MSME Sambandh</li>
-						<li>MSME Dashboard</li>
-						<li>Entrepreneurship Skill Development Programme (ESDP)</li>
+						<li>&gt; CHAMPIONS</li>
+						<li>&gt; MSME Samadhaan</li>
+						<li>&gt; MSME Sambandh</li>
+						<li>&gt; MSME Dashboard</li>
+						<li>&gt; Entrepreneurship Skill Development Programme (ESDP)</li>
 					</ul>
 				</div>
 			</div>

@@ -13,10 +13,10 @@ export default function Header() {
 				<img
 					src="/MINISTRY_NAME.webp"
 					alt="Ministry of Micro, Small & Medium Enterprises"
-					className="h-14 header-image"
+					className="h-14 header-image mt-2"
 				/>
 				{/* Desktop Navigation */}
-				<nav className="hidden md:flex gap-2 text-sm font-medium ml-auto">
+				<nav className="hidden md:flex md:gap-6 text-sm font-medium ml-auto">
 					<a href="#" className="hover:underline">
 						Home
 					</a>
