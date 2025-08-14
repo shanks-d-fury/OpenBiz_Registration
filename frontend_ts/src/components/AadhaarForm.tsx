@@ -22,6 +22,7 @@ export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
 	const [showAadhaarError, setShowAadhaarError] = useState(false);
 	const [showNameError, setShowNameError] = useState(false);
 	const [showConsentError, setShowConsentError] = useState(false);
+	const [showAadhaarFormatError, setShowAadhaarFormatError] = useState(false);
 
 	// Disable fields after OTP is successfully verified
 	const [isOtpValidated, setIsOtpValidated] = useState(false);
@@ -45,6 +46,7 @@ export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
 		setShowAadhaarError(false);
 		setShowNameError(false);
 		setShowConsentError(false);
+		setShowAadhaarFormatError(false);
 
 		setError("");
 
@@ -53,6 +55,10 @@ export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
 		// Check each field and set errors
 		if (!aadhaarNumber.trim()) {
 			setShowAadhaarError(true);
+			hasErrors = true;
+		} else if (!/^\d{12}$/.test(aadhaarNumber)) {
+			// Aadhaar must be exactly 12 digits
+			setShowAadhaarFormatError(true);
 			hasErrors = true;
 		}
 		if (!name.trim()) {
@@ -129,18 +135,35 @@ export default function AadhaarForm({ onOtpVerified }: AadhaarFormProps) {
 							<input
 								type="text"
 								placeholder="Your Aadhaar No"
+								inputMode="numeric"
+								pattern="\\d*"
+								maxLength={12}
 								className={`border rounded p-2 mt-1 ${
 									isOtpValidated ? "bg-gray-100 cursor-not-allowed" : ""
+								} ${
+									showAadhaarError || showAadhaarFormatError
+										? "border-red-500"
+										: ""
 								}`}
 								value={aadhaarNumber}
 								onChange={(e) => {
-									setAadhaarNumber(e.target.value);
+									// Allow only digits and cap at 12
+									const digitsOnly = e.target.value
+										.replace(/\D/g, "")
+										.slice(0, 12);
+									setAadhaarNumber(digitsOnly);
 									setShowAadhaarError(false); // Clear error when user types
+									setShowAadhaarFormatError(false);
 								}}
 								disabled={isOtpValidated}
 							/>
 							{showAadhaarError && (
 								<p className="text-red-500 text-xs mt-1">Required</p>
+							)}
+							{!showAadhaarError && showAadhaarFormatError && (
+								<p className="text-red-500 text-xs mt-1">
+									Enter Valid Aadhaar Format
+								</p>
 							)}
 						</div>
 						<div className="flex flex-col">
